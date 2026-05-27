@@ -3,29 +3,26 @@
 module tt_um_uart_tx (
     input  wire [7:0] ui_in,
     output wire [7:0] uo_out,
-
     input  wire [7:0] uio_in,
     output wire [7:0] uio_out,
     output wire [7:0] uio_oe,
-
-    input  wire ena,
-    input  wire clk,
-    input  wire rst_n
+    input  wire       ena,
+    input  wire       clk,
+    input  wire       rst_n
 );
 
-    // UART transmitter register
+    // UART transmit output
     reg tx;
 
-    // Data register
-    reg [7:0] data_reg;
+    // Shift register
+    reg [7:0] shift_reg;
 
     // Bit counter
-    reg [3:0] bit_index;
+    reg [2:0] bit_index;
 
     // FSM states
     reg [1:0] state;
 
-    // State encoding
     localparam IDLE  = 2'b00;
     localparam START = 2'b01;
     localparam DATA  = 2'b10;
@@ -35,35 +32,35 @@ module tt_um_uart_tx (
     always @(posedge clk or negedge rst_n) begin
 
         if (!rst_n) begin
+
             state <= IDLE;
+            bit_index <= 3'b000;
             tx <= 1'b1;
-            data_reg <= 8'b0;
-            bit_index <= 4'b0;
-        end
+            shift_reg <= 8'b00000000;
 
-        else begin
+        end else begin
 
-            case(state)
+            case (state)
 
-                // Waiting state
                 IDLE: begin
-                    data_reg <= ui_in;
-                    tx <= 1'b1;
+                    shift_reg <= ui_in;
                     bit_index <= 0;
+                    tx <= 1'b1;
                     state <= START;
                 end
 
-                // Send start bit
                 START: begin
                     tx <= 1'b0;
                     state <= DATA;
                 end
 
-                // Send 8 data bits
                 DATA: begin
-                    tx <= data_reg[bit_index];
 
-                    if(bit_index == 7) begin
+                    tx <= shift_reg[0];
+
+                    shift_reg <= shift_reg >> 1;
+
+                    if (bit_index == 3'd7) begin
                         bit_index <= 0;
                         state <= STOP;
                     end
@@ -72,9 +69,12 @@ module tt_um_uart_tx (
                     end
                 end
 
-                // Send stop bit
                 STOP: begin
                     tx <= 1'b1;
+                    state <= IDLE;
+                end
+
+                default: begin
                     state <= IDLE;
                 end
 
@@ -85,13 +85,11 @@ module tt_um_uart_tx (
     end
 
     // Output mapping
-    assign uo_out[0] = tx;
+    assign uo_out = {7'b0000000, tx};
 
-    // Unused outputs
-    assign uo_out[7:1] = 7'b0;
-
-    assign uio_out = 8'b0;
-    assign uio_oe  = 8'b0;
+    // Unused IOs
+    assign uio_out = 8'b00000000;
+    assign uio_oe  = 8'b00000000;
 
     // Prevent warnings
     wire _unused = &{ena, uio_in, 1'b0};
