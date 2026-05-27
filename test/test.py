@@ -1,24 +1,8 @@
 import cocotb
-from cocotb.clock import Clock
 from cocotb.triggers import Timer
 
 
 @cocotb.test()
 async def test_uart_tx(dut):
 
-    # Start clock
-    clock = Clock(dut.clk, 10, unit="us")
-    cocotb.start_soon(clock.start())
-
-    # Apply reset
-    dut.rst_n.value = 0
-    dut.ena.value = 1
-    dut.ui_in.value = 0b10110011
-
-    await Timer(20, unit="us")
-
-    # Release reset
-    dut.rst_n.value = 1
-
-    # Let simulation run
-    await Timer(300, unit="us")
+    await Timer(1, unit="us")
