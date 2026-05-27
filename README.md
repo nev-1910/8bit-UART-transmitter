@@ -61,6 +61,7 @@ The design accepts 8-bit parallel input data and transmits it serially through a
 - GTKWave
 
 ---
+Final TinyTapeout UART transmitter implementation completed successfully.
 
 ## Author
 
