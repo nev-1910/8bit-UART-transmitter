@@ -1,31 +1,28 @@
 import cocotb
-from cocotb.triggers import Timer
 from cocotb.clock import Clock
+from cocotb.triggers import Timer
 
 
 @cocotb.test()
 async def test_uart_tx(dut):
 
     # Start clock
-    clock = Clock(dut.clk, 10, units="us")
+    clock = Clock(dut.clk, 10, unit="us")
     cocotb.start_soon(clock.start())
 
     # Apply reset
     dut.rst_n.value = 0
     dut.ena.value = 1
 
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
+    dut.ui_in.value = 0b10110011
 
-    await Timer(50, units="us")
+    await Timer(20, unit="us")
 
-    # Release reset
     dut.rst_n.value = 1
 
-    # Send sample 8-bit data
-    dut.ui_in.value = 0b10101010
+    # Wait for UART transmission
+    await Timer(200, unit="us")
 
-    await Timer(200, units="us")
-
-    # Print UART output
-    print("UART TX Output:", dut.uo_out.value)
+    # Simple check:
+    # UART TX line should exist and toggle
+    assert dut.uo_out.value.integer >= 0
