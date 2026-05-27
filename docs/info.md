@@ -1,20 +1,41 @@
-<!---
+# 8-bit UART Transmitter
 
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
+## Project Description
 
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
+This project implements a simple 8-bit UART transmitter using Verilog HDL in the TinyTapeout framework.
+
+The design accepts 8-bit parallel input data and transmits it serially through the UART TX output pin.
+
+---
 
 ## How it works
 
-Explain how your project works
+The UART transmitter takes 8-bit input data from the ui_in pins.
+
+The transmitted UART frame contains:
+
+1. Start bit
+2. 8 data bits
+3. Stop bit
+
+The serial output is available on output pin uo[0].
+
+The design works using the TinyTapeout system clock and reset signals.
+
+---
 
 ## How to test
 
-Explain how to use your project
+1. Apply reset using rst_n.
+2. Provide 8-bit input data through ui_in[7:0].
+3. Run the simulation using cocotb testbench.
+4. Observe UART serial output on uo[0].
+5. Verify output waveform using GTKWave.
 
-## External hardware
+---
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+## Inputs
+
+| Pin | Description |
+|-----|-------------|
+| ui
